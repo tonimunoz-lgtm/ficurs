@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>El Mòbil Viatger</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0908; --s1:#141210; --s2:#1e1c19;
+  --b1:rgba(255,255,255,0.07); --b2:rgba(255,255,255,0.14);
+  --tx:#f4f0ea; --tx2:#a09a94; --tx3:#5a5450;
+  --gold:#c9a84c; --gold2:#e8c96a;
+  --teal:#4aada8; --teal-bg:rgba(74,173,168,0.15);
+  --grn:#5aaa6a; --grn-bg:rgba(90,170,106,0.15);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;padding:1.5rem;
+}
+
+/* WAIT SCREEN */
+#screen-wait{text-align:center;animation:fadeIn .6s ease}
+.logo{font-family:'Playfair Display',serif;font-size:13px;color:var(--gold);letter-spacing:.15em;text-transform:uppercase;margin-bottom:2.5rem;opacity:.7}
+.pulse-ring{width:64px;height:64px;border-radius:50%;border:1.5px solid var(--gold);margin:0 auto 2rem;position:relative;animation:ring 2s ease-in-out infinite}
+.pulse-ring::after{content:'';position:absolute;inset:8px;border-radius:50%;background:rgba(201,168,76,.15);animation:ring 2s ease-in-out infinite .4s}
+@keyframes ring{0%,100%{opacity:.8;transform:scale(1)}50%{opacity:.3;transform:scale(.92)}}
+.wait-title{font-family:'Playfair Display',serif;font-size:22px;color:var(--tx);margin-bottom:.75rem}
+.wait-sub{font-size:14px;color:var(--tx2);line-height:1.6}
+
+/* ENIGMA SCREEN */
+#screen-enigma{display:none;max-width:420px;width:100%;animation:slideUp .5s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.header{text-align:center;margin-bottom:2rem}
+.centre-name{font-size:12px;color:var(--tx3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.progress-wrap{display:flex;align-items:center;gap:10px;justify-content:center;margin-top:8px}
+.progress-bar{flex:1;max-width:120px;height:3px;background:var(--b2);border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;background:var(--gold);border-radius:99px;transition:width .6s ease}
+.progress-label{font-size:12px;color:var(--tx3)}
+
+.enigma-card{
+  background:var(--s1);border:1px solid var(--b2);border-radius:18px;
+  padding:2rem 1.75rem;margin-bottom:1.25rem;
+  position:relative;overflow:hidden;
+}
+.enigma-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at top right,rgba(201,168,76,.06) 0%,transparent 65%);
+  pointer-events:none;
+}
+.enigma-label{font-size:11px;color:var(--tx3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.enigma-label::after{content:'';flex:1;height:1px;background:var(--b1)}
+.enigma-text{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:clamp(16px,4vw,20px);color:var(--tx);line-height:1.65;
+}
+.to-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 10px;border-radius:99px;margin-bottom:1rem}
+.to-divertit{background:rgba(201,168,76,.12);color:var(--gold)}
+.to-emotiu{background:var(--teal-bg);color:var(--teal)}
+.to-pausa{background:rgba(90,143,212,.12);color:#7aabde}
+.to-final{background:var(--grn-bg);color:var(--grn)}
+
+.instruction-card{
+  background:var(--s2);border:1px solid var(--b1);border-radius:14px;
+  padding:1.25rem 1.5rem;text-align:center;
+}
+.instr-text{font-size:15px;color:var(--tx2);line-height:1.6}
+.instr-text strong{color:var(--tx);font-weight:500}
+
+/* PAUSA SCREEN */
+#screen-pausa{display:none;text-align:center;max-width:360px;width:100%;animation:fadeIn .6s ease}
+.pausa-icon{font-size:40px;margin-bottom:1.5rem;opacity:.8}
+.pausa-title{font-family:'Playfair Display',serif;font-size:24px;color:var(--tx);margin-bottom:.75rem}
+.pausa-sub{font-size:15px;color:var(--tx2);line-height:1.65}
+
+/* FINAL SCREEN */
+#screen-final{display:none;max-width:400px;width:100%;text-align:center;animation:fadeIn .8s ease}
+.final-icon{font-size:36px;margin-bottom:1.5rem}
+.final-quote{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:clamp(17px,4vw,21px);color:var(--tx);line-height:1.7;
+  padding:1.75rem;background:var(--s1);border-radius:16px;
+  border:1px solid var(--b2);margin-bottom:1rem;
+  position:relative;
+}
+.final-quote::before{content:'"';position:absolute;top:12px;left:18px;font-size:36px;color:rgba(201,168,76,.25);font-family:'Playfair Display',serif;line-height:1}
+.final-canco{font-size:13px;color:var(--tx3);margin-top:.75rem}
+
+/* ERROR */
+#screen-error{display:none;text-align:center;max-width:320px;animation:fadeIn .5s ease}
+
+/* CONNECTION DOT */
+.conn{position:fixed;top:1rem;right:1rem;width:8px;height:8px;border-radius:50%;background:var(--tx3);transition:background .5s}
+.conn.ok{background:var(--grn)}
+.conn.err{background:#c94a4a}
+</style>
+</head>
+<body>
+
+<div class="conn" id="conn-dot"></div>
+
+<!-- ESPERA -->
+<div id="screen-wait">
+  <div class="logo">Graduació 2025</div>
+  <div class="pulse-ring"></div>
+  <div class="wait-title">Esperant...</div>
+  <div class="wait-sub">El joc comença aviat.<br>Mantingues el mòbil encès.</div>
+</div>
+
+<!-- ENIGMA -->
+<div id="screen-enigma">
+  <div class="header">
+    <div class="centre-name" id="m-centre">Institut</div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="m-prog" style="width:0%"></div></div>
+      <div class="progress-label" id="m-prog-label">0 / 0</div>
+    </div>
+  </div>
+  <div class="enigma-card">
+    <div class="enigma-label">El claustre recorda...</div>
+    <div class="to-badge" id="m-to-badge"></div>
+    <div class="enigma-text" id="m-enigma-text"></div>
+  </div>
+  <div class="instruction-card">
+    <div class="instr-text"><strong>Passa el mòbil</strong> a la persona que encaixa amb l'enigma.</div>
+  </div>
+</div>
+
+<!-- PAUSA -->
+<div id="screen-pausa">
+  <div class="pausa-icon">♪</div>
+  <div class="pausa-title">Un moment especial</div>
+  <div class="pausa-sub">Escolteu amb atenció.<br>Hi ha una veu que vol dir-vos alguna cosa.</div>
+</div>
+
+<!-- FINAL -->
+<div id="screen-final">
+  <div class="final-icon">★</div>
+  <div class="final-quote" id="m-final-quote"></div>
+  <div class="final-canco" id="m-final-canco"></div>
+</div>
+
+<!-- ERROR -->
+<div id="screen-error">
+  <div style="font-size:32px;margin-bottom:1rem">⚠</div>
+  <div style="font-size:16px;color:var(--tx2)">No es pot connectar.<br>Comprova la connexió a internet.</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA_8UTnwDfNH5mC87h1A66tzTRDBZiFC1k",
+  authDomain: "fin-de-curso-ad503.firebaseapp.com",
+  projectId: "fin-de-curso-ad503",
+  storageBucket: "fin-de-curso-ad503.firebasestorage.app",
+  messagingSenderId: "254135718070",
+  appId: "1:254135718070:web:c4458a0dd0045ce9439617",
+  databaseURL: "https://fin-de-curso-ad503-default-rtdb.europe-west1.firebasedatabase.app"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const dot = document.getElementById('conn-dot');
+
+function show(id) {
+  ['wait','enigma','pausa','final','error'].forEach(s=>{
+    document.getElementById('screen-'+s).style.display = s===id ? (s==='wait'||s==='pausa'||s==='final'||s==='error'?'block':'block') : 'none';
+  });
+  if (id==='enigma') document.getElementById('screen-enigma').style.display='flex';
+  else document.getElementById('screen-enigma').style.display='none';
+}
+show('wait');
+
+let lastStep = -2;
+let vibrateSupported = 'vibrate' in navigator;
+
+function vibratePulse() {
+  if (vibrateSupported) navigator.vibrate([200,100,200,100,400]);
+}
+
+onValue(ref(db,'cerimonia'), snap => {
+  dot.className = 'conn ok';
+  const d = snap.val();
+  if (!d) { show('wait'); return; }
+
+  const enigmes = d.enigmes ? Object.values(d.enigmes).sort((a,b)=>a.ordre-b.ordre) : [];
+  const step = d.currentStep !== undefined ? d.currentStep : -1;
+  const cfg = d.cfg || {};
+  const finalMsg = d.finalMsg || '';
+  const finalCanco = d.finalCanco || '';
+  const total = enigmes.length;
+
+  // Update centre name
+  if (cfg.centre) {
+    document.getElementById('m-centre').textContent = cfg.centre + ' — Graduació ' + (cfg.any||'2025');
+    document.querySelector('.logo').textContent = 'Graduació ' + (cfg.any||'2025');
+  }
+
+  if (step === -1) { show('wait'); lastStep=-1; return; }
+  if (step >= total) { show('wait'); return; }
+
+  const e = enigmes[step];
+  if (!e) { show('wait'); return; }
+
+  // Vibrate on new step
+  if (step !== lastStep && lastStep !== -2) vibratePulse();
+  lastStep = step;
+
+  // Progress
+  document.getElementById('m-prog').style.width = Math.round(((step+1)/total)*100)+'%';
+  document.getElementById('m-prog-label').textContent = (step+1)+' / '+total;
+
+  if (e.to === 'pausa') {
+    show('pausa');
+    return;
+  }
+
+  if (e.to === 'final') {
+    document.getElementById('m-final-quote').textContent = finalMsg || 'Gràcies per fer-nos millors.';
+    document.getElementById('m-final-canco').textContent = finalCanco ? '♪ ' + finalCanco : '';
+    show('final');
+    return;
+  }
+
+  // Normal enigma
+  const toLabels = { divertit:'😄 Moment divertit', emotiu:'💛 Moment emotiu' };
+  const toBadge = { divertit:'to-divertit', emotiu:'to-emotiu' };
+  const badge = document.getElementById('m-to-badge');
+  badge.textContent = toLabels[e.to] || '';
+  badge.className = 'to-badge ' + (toBadge[e.to]||'to-divertit');
+  document.getElementById('m-enigma-text').textContent = e.text;
+  show('enigma');
+
+}, err => {
+  dot.className = 'conn err';
+  show('error');
+});
+</script>
+</body>
+</html>

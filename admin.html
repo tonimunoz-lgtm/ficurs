@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — El Mòbil Viatger</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0f0e0c; --s1:#1a1916; --s2:#242220; --s3:#2e2c29;
+  --b1:rgba(255,255,255,0.07); --b2:rgba(255,255,255,0.13);
+  --tx:#f0ede8; --tx2:#9a9690; --tx3:#5a5854;
+  --gold:#c9a84c; --gold2:#e8c96a;
+  --teal:#4aada8; --teal-bg:rgba(74,173,168,0.12);
+  --red:#c94a4a;  --red-bg:rgba(201,74,74,0.12);
+  --grn:#5aaa6a;  --grn-bg:rgba(90,170,106,0.12);
+  --blue:#5a8fd4; --blue-bg:rgba(90,143,212,0.12);
+  --r:10px; --rl:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:15px}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:1rem}
+.login-box{background:var(--s1);border:1px solid var(--b2);border-radius:var(--rl);padding:2.5rem;width:90%;max-width:360px;text-align:center}
+.login-box h1{font-family:'Playfair Display',serif;font-size:22px;color:var(--gold);margin-bottom:8px}
+.login-box p{font-size:13px;color:var(--tx2);margin-bottom:1.5rem}
+.login-box input{width:100%;padding:12px;background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);color:var(--tx);font-size:16px;text-align:center;letter-spacing:4px;margin-bottom:1rem;font-family:'DM Sans',sans-serif}
+.login-box input:focus{outline:none;border-color:var(--gold)}
+#login-error{font-size:13px;color:var(--red);margin-top:-8px;display:none}
+
+/* NAV */
+nav{background:var(--s1);border-bottom:1px solid var(--b1);padding:0 1.5rem;display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:100}
+.brand{font-family:'Playfair Display',serif;font-size:15px;color:var(--gold);padding:.875rem 1.25rem .875rem 0;border-right:1px solid var(--b1);margin-right:1rem;white-space:nowrap}
+.tabs{display:flex;overflow-x:auto}
+.tab{padding:.875rem 1.125rem;font-size:13px;color:var(--tx2);cursor:pointer;border:none;background:transparent;font-family:'DM Sans',sans-serif;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s}
+.tab:hover{color:var(--tx)}
+.tab.on{color:var(--gold);border-bottom-color:var(--gold)}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--tx3);display:inline-block;margin-left:auto;margin-right:1rem;transition:background .5s}
+.status-dot.ok{background:var(--grn)}
+
+/* PAGES */
+.page{display:none;padding:2rem 1.5rem;max-width:860px;margin:0 auto}
+.page.on{display:block}
+
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--rl);padding:1.5rem;margin-bottom:1.25rem}
+.card-title{font-family:'Playfair Display',serif;font-size:17px;color:var(--tx);margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--b1)}
+
+/* FORMS */
+.field{margin-bottom:.875rem}
+.field label{font-size:11px;color:var(--tx2);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em}
+.field input,.field textarea,.field select{width:100%;padding:9px 13px;background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);color:var(--tx);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--gold)}
+.field textarea{resize:vertical;min-height:80px}
+.field select option{background:var(--s2)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.row2{grid-template-columns:1fr}}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;border:1px solid var(--b2);background:transparent;color:var(--tx);transition:all .2s}
+.btn:hover{background:var(--s2)}
+.btn:disabled{opacity:.3;cursor:not-allowed}
+.btn-gold{background:var(--gold);color:#1a1400;border-color:var(--gold);font-weight:500}
+.btn-gold:hover{background:var(--gold2);border-color:var(--gold2)}
+.btn-teal{background:var(--teal-bg);color:var(--teal);border-color:rgba(74,173,168,.4)}
+.btn-red{background:var(--red-bg);color:var(--red);border-color:rgba(201,74,74,.4)}
+.btn-grn{background:var(--grn-bg);color:var(--grn);border-color:rgba(90,170,106,.4)}
+.btn-big{width:100%;padding:15px;font-size:15px;justify-content:center;font-family:'Playfair Display',serif;letter-spacing:.02em}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+
+/* BADGES */
+.badge{display:inline-block;font-size:11px;padding:2px 9px;border-radius:99px;font-weight:500}
+.bg-gold{background:rgba(201,168,76,.15);color:var(--gold)}
+.bg-teal{background:var(--teal-bg);color:var(--teal)}
+.bg-red{background:var(--red-bg);color:var(--red)}
+.bg-grn{background:var(--grn-bg);color:var(--grn)}
+.bg-blue{background:var(--blue-bg);color:var(--blue)}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.25rem}
+@media(max-width:480px){.stats{grid-template-columns:1fr 1fr}}
+.stat{background:var(--s2);border-radius:var(--r);padding:1rem;border:1px solid var(--b1)}
+.stat-n{font-family:'Playfair Display',serif;font-size:28px;color:var(--gold)}
+.stat-l{font-size:12px;color:var(--tx2);margin-top:3px}
+
+/* ENIGMES LIST */
+.eitem{display:flex;gap:12px;padding:13px;background:var(--s2);border-radius:var(--r);margin-bottom:8px;border:1px solid var(--b1);transition:border-color .2s}
+.eitem:hover{border-color:var(--b2)}
+.enum{width:30px;height:30px;border-radius:7px;background:rgba(201,168,76,.1);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0;margin-top:2px}
+.ebody{flex:1;min-width:0}
+.etext{font-size:13px;color:var(--tx);margin:5px 0 8px;line-height:1.55;font-family:'Playfair Display',serif;font-style:italic}
+.enota{font-size:12px;color:var(--tx3);margin-bottom:6px}
+.eactions{display:flex;gap:8px}
+.icon-btn{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;background:var(--s1);border:1px solid var(--b1);color:var(--tx2);transition:all .2s}
+.icon-btn:hover{color:var(--tx);border-color:var(--b2)}
+.icon-btn.del:hover{background:var(--red-bg);color:var(--red);border-color:rgba(201,74,74,.4)}
+.icon-btn.up:hover,.icon-btn.dn:hover{background:var(--blue-bg);color:var(--blue);border-color:rgba(90,143,212,.4)}
+
+/* CONSOLA STEPS */
+.step{display:flex;gap:14px;padding:14px;background:var(--s2);border-radius:var(--r);margin-bottom:8px;border:1px solid var(--b1);transition:border-color .4s,opacity .3s}
+.step.active{border-color:var(--gold)}
+.step.done{opacity:.45}
+.snum{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0;border:1px solid var(--b2);color:var(--tx2);transition:all .4s}
+.snum.done{background:var(--grn-bg);color:var(--grn);border-color:rgba(90,170,106,.4)}
+.snum.active{background:rgba(201,168,76,.12);color:var(--gold);border-color:rgba(201,168,76,.4)}
+.sbody{flex:1;min-width:0}
+.stitle{font-size:14px;font-weight:500;color:var(--tx);margin-bottom:4px}
+.ssub{font-size:13px;color:var(--tx2);line-height:1.5;margin-bottom:10px;font-family:'Playfair Display',serif;font-style:italic}
+.smeta{font-size:12px;color:var(--tx3);margin-top:4px}
+
+/* PROGRESS */
+.prog-bar{height:4px;background:var(--b1);border-radius:99px;margin-bottom:1.5rem;overflow:hidden}
+.prog-fill{height:100%;background:var(--gold);border-radius:99px;transition:width .6s ease}
+
+/* ALERT */
+.alert{padding:11px 15px;border-radius:var(--r);font-size:13px;margin-bottom:1.25rem;line-height:1.5;border:1px solid}
+.alert-gold{background:rgba(201,168,76,.08);color:#d4b46a;border-color:rgba(201,168,76,.25)}
+.alert-teal{background:var(--teal-bg);color:var(--teal);border-color:rgba(74,173,168,.3)}
+.alert-red{background:var(--red-bg);color:var(--red);border-color:rgba(201,74,74,.3)}
+.alert-grn{background:var(--grn-bg);color:var(--grn);border-color:rgba(90,170,106,.3)}
+
+/* PAGE HEADER */
+.ph{margin-bottom:1.75rem}
+.ph h1{font-family:'Playfair Display',serif;font-size:26px;margin-bottom:5px}
+.ph p{color:var(--tx2);font-size:14px}
+
+/* AUDIO */
+.audio-zone{border:1px dashed var(--b2);border-radius:var(--r);padding:1.75rem;text-align:center;cursor:pointer;color:var(--tx2);font-size:14px;transition:border-color .2s}
+.audio-zone:hover{border-color:var(--gold);color:var(--tx)}
+.audio-name{font-size:13px;color:var(--teal);margin-top:8px}
+input[type=file]{display:none}
+
+/* TOAST */
+#toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(120px);padding:10px 22px;border-radius:99px;font-size:13px;z-index:9999;transition:transform .35s;white-space:nowrap;border:1px solid}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+hr{border:none;border-top:1px solid var(--b1);margin:1.25rem 0}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <h1>El Mòbil Viatger</h1>
+    <p>Panell del professor — introdueix la contrasenya</p>
+    <input type="password" id="pwd-input" placeholder="••••••" onkeydown="if(event.key==='Enter')checkPwd()">
+    <div id="login-error">Contrasenya incorrecta</div>
+    <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:4px" onclick="checkPwd()">Entrar</button>
+  </div>
+  <p style="font-size:12px;color:var(--tx3)">Contrasenya per defecte: <strong style="color:var(--tx2)">grad2025</strong></p>
+</div>
+
+<div id="toast"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="brand">El Mòbil Viatger</div>
+  <div class="tabs">
+    <button class="tab on" onclick="goPage('enigmes',this)">Enigmes</button>
+    <button class="tab" onclick="goPage('config',this)">Configuració</button>
+    <button class="tab" onclick="goPage('consola',this)">Consola</button>
+  </div>
+  <div class="status-dot" id="status-dot" title="Connexió Firebase"></div>
+</nav>
+
+<!-- ═══ PAGE: ENIGMES ═══ -->
+<div id="page-enigmes" class="page on">
+  <div class="ph"><h1>Enigmes i anècdotes</h1><p>Afegeix i ordena els missatges de la cerimònia.</p></div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-n" id="st-total">0</div><div class="stat-l">enigmes</div></div>
+    <div class="stat"><div class="stat-n" id="st-mins">—</div><div class="stat-l">minuts estimats</div></div>
+    <div class="stat"><div class="stat-n" id="st-sync">—</div><div class="stat-l">sincronitzat</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Nou enigma</div>
+    <div class="alert alert-gold">Comença amb "Passa el mòbil a qui..." — mantén el misteri. Alterna divertit i emotiu.</div>
+    <div class="row2">
+      <div class="field"><label>Número d'ordre</label><input type="number" id="e-ordre" min="1" max="30" value="1"></div>
+      <div class="field"><label>To</label>
+        <select id="e-to">
+          <option value="divertit">😄 Divertit</option>
+          <option value="emotiu">💛 Emotiu</option>
+          <option value="pausa">🎵 Pausa — veu de l'absent</option>
+          <option value="final">⭐ Final emotiu</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>Text de l'enigma (es mostrarà al mòbil)</label>
+      <textarea id="e-text" placeholder="Passa el mòbil a qui mai va arribar tard a classe... excepte quan tocava educació física."></textarea>
+    </div>
+    <div class="field"><label>Nota interna (qui és — no es mostra al mòbil)</label>
+      <input type="text" id="e-nota" placeholder="Ex: Laia Puig — confirmat amb la tutora"></div>
+    <div class="btn-row">
+      <button class="btn btn-gold" onclick="afegirEnigma()">Afegir enigma</button>
+      <button class="btn" onclick="clearEnigmaForm()">Netejar</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Seqüència actual</div>
+    <div id="enigmes-list"><p style="color:var(--tx3);font-size:14px;text-align:center;padding:2rem 0">Encara no hi ha enigmes.</p></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Missatge final</div>
+    <div class="field"><label>Text (es mostra quan el mòbil arriba als professors)</label>
+      <textarea id="final-text" placeholder="Gràcies per fer-nos millors. Sou la raó per la qual tot pren sentit."></textarea>
+    </div>
+    <div class="field"><label>Cançó del final (recordatori teu)</label>
+      <input type="text" id="final-canco" placeholder="Ex: Fix You — Coldplay"></div>
+    <button class="btn btn-gold" onclick="desarFinal()">Desar missatge final</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Àudio de l'exprofesor/a</div>
+    <div class="alert alert-teal">Demana-li que gravi una nota de veu i te l'enviï. La reproduiràs des de la consola durant la pausa.</div>
+    <div class="field"><label>Nom (referència interna)</label>
+      <input type="text" id="audio-nom" placeholder="Ex: Marta García"></div>
+    <div class="audio-zone" id="audio-zone" onclick="document.getElementById('audio-file').click()">
+      Toca per pujar l'àudio (MP3, M4A, OGG...)
+      <div class="audio-name" id="audio-fname"></div>
+    </div>
+    <input type="file" id="audio-file" accept="audio/*" onchange="audioCarregat(this)">
+    <div id="audio-player" style="display:none;margin-top:12px">
+      <audio id="audio-el" controls style="width:100%;border-radius:8px;margin-top:8px"></audio>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PAGE: CONFIG ═══ -->
+<div id="page-config" class="page">
+  <div class="ph"><h1>Configuració</h1><p>Dades generals de la cerimònia.</p></div>
+  <div class="card">
+    <div class="card-title">Dades del centre</div>
+    <div class="row2">
+      <div class="field"><label>Nom del centre</label><input type="text" id="cfg-centre" placeholder="Institut XXX"></div>
+      <div class="field"><label>Any de graduació</label><input type="text" id="cfg-any" placeholder="2025" value="2025"></div>
+    </div>
+    <div class="field"><label>Contrasenya de l'admin (per canviar)</label><input type="password" id="cfg-pwd" placeholder="Nova contrasenya"></div>
+    <button class="btn btn-gold" onclick="desarConfig()">Desar configuració</button>
+  </div>
+  <div class="card">
+    <div class="card-title">Estat Firebase</div>
+    <div id="firebase-status" class="alert alert-gold">Connectant...</div>
+    <div class="btn-row">
+      <button class="btn btn-red" onclick="resetCerimonia()">Reiniciar cerimònia (pas 0)</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PAGE: CONSOLA ═══ -->
+<div id="page-consola" class="page">
+  <div class="ph"><h1>Consola de cerimònia</h1><p>Usa aquesta pantalla durant la graduació. Tu controles el ritme.</p></div>
+  <div id="consola-no-data" class="alert alert-red" style="display:none">No hi ha enigmes configurats. Ves a la pestanya Enigmes primer.</div>
+  <div id="consola-body">
+    <div class="prog-bar"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+    <div class="stats" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="stat"><div class="stat-n" id="c-actual">—</div><div class="stat-l">enigma actiu</div></div>
+      <div class="stat"><div class="stat-n" id="c-total2">0</div><div class="stat-l">total enigmes</div></div>
+      <div class="stat"><div class="stat-n" id="c-estat">—</div><div class="stat-l">estat</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Control principal</div>
+      <button class="btn btn-gold btn-big" id="btn-next" onclick="activarSeguent()">Activar primer enigma</button>
+      <p style="font-size:13px;color:var(--tx3);text-align:center;margin-top:10px" id="c-hint">Prem quan la cerimònia arribi al moment del joc.</p>
+    </div>
+    <div class="card" id="audio-card" style="display:none">
+      <div class="card-title">🎵 Àudio de l'exprofesor/a — <span style="font-size:13px;color:var(--tx2)" id="audio-nom-show"></span></div>
+      <p style="font-size:14px;color:var(--tx2);margin-bottom:1rem">Connecta el mòbil als altaveus de l'escenari i prem play.</p>
+      <audio id="consola-audio" controls style="width:100%;border-radius:8px"></audio>
+    </div>
+    <div class="card">
+      <div class="card-title">Seqüència</div>
+      <div id="consola-steps"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA_8UTnwDfNH5mC87h1A66tzTRDBZiFC1k",
+  authDomain: "fin-de-curso-ad503.firebaseapp.com",
+  projectId: "fin-de-curso-ad503",
+  storageBucket: "fin-de-curso-ad503.firebasestorage.app",
+  messagingSenderId: "254135718070",
+  appId: "1:254135718070:web:c4458a0dd0045ce9439617",
+  databaseURL: "https://fin-de-curso-ad503-default-rtdb.europe-west1.firebasedatabase.app"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// ── STATE ──
+let enigmes = [];
+let cfg = { centre: 'Institut', any: '2025', pwd: 'grad2025' };
+let finalMsg = 'Gràcies per fer-nos millors. Sou la raó per la qual tot pren sentit.';
+let finalCanco = '';
+let currentStep = -1;
+let audioURL = null;
+
+// ── LOGIN ──
+const PWD_KEY = 'mviatger_auth';
+function checkPwd() {
+  const v = document.getElementById('pwd-input').value;
+  const stored = localStorage.getItem(PWD_KEY) || 'grad2025';
+  if (v === stored || v === cfg.pwd) {
+    document.getElementById('login-screen').style.display = 'none';
+    initApp();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+window.checkPwd = checkPwd;
+if (sessionStorage.getItem('auth_ok')) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.addEventListener('DOMContentLoaded', initApp);
+}
+
+// ── FIREBASE ──
+function initApp() {
+  sessionStorage.setItem('auth_ok', '1');
+  const dot = document.getElementById('status-dot');
+  const fbs = document.getElementById('firebase-status');
+
+  onValue(ref(db, 'cerimonia'), snap => {
+    dot.className = 'status-dot ok';
+    if (fbs) fbs.className = 'alert alert-grn', fbs.textContent = 'Connectat a Firebase correctament.';
+    const d = snap.val() || {};
+    enigmes = d.enigmes ? Object.values(d.enigmes).sort((a,b)=>a.ordre-b.ordre) : [];
+    cfg = d.cfg || cfg;
+    finalMsg = d.finalMsg || finalMsg;
+    finalCanco = d.finalCanco || finalCanco;
+    currentStep = d.currentStep !== undefined ? d.currentStep : -1;
+    renderAll();
+  }, err => {
+    dot.className = 'status-dot';
+    if (fbs) fbs.className = 'alert alert-red', fbs.textContent = 'Error de connexió: ' + err.message;
+  });
+}
+
+function saveToFirebase() {
+  const obj = { enigmes:{}, cfg, finalMsg, finalCanco, currentStep };
+  enigmes.forEach((e,i)=>{ obj.enigmes[e.id]=e; });
+  set(ref(db,'cerimonia'), obj).then(()=>toast('Desat!')).catch(e=>toast(e.message,false));
+  document.getElementById('st-sync').textContent = new Date().toLocaleTimeString('ca',{hour:'2-digit',minute:'2-digit'});
+}
+
+async function setStep(n) {
+  currentStep = n;
+  await set(ref(db,'cerimonia/currentStep'), n);
+  renderConsola();
+}
+
+window.resetCerimonia = async function() {
+  if (!confirm('Reiniciar la cerimònia al pas 0?')) return;
+  await set(ref(db,'cerimonia/currentStep'), -1);
+  toast('Cerimònia reiniciada');
+};
+
+// ── TOAST ──
+function toast(msg, ok=true) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = ok ? 'rgba(90,170,106,.15)' : 'rgba(201,74,74,.15)';
+  t.style.color = ok ? 'var(--grn)' : 'var(--red)';
+  t.style.borderColor = ok ? 'rgba(90,170,106,.4)' : 'rgba(201,74,74,.4)';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+// ── NAVIGATION ──
+window.goPage = function(id, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('page-'+id).classList.add('on');
+  btn.classList.add('on');
+  if (id==='consola') renderConsola();
+};
+
+// ── ENIGMES ──
+window.afegirEnigma = function() {
+  const text = document.getElementById('e-text').value.trim();
+  if (!text) { toast('Escriu el text de l\'enigma',false); return; }
+  const e = {
+    id: Date.now(),
+    ordre: parseInt(document.getElementById('e-ordre').value)||enigmes.length+1,
+    to: document.getElementById('e-to').value,
+    text,
+    nota: document.getElementById('e-nota').value.trim()
+  };
+  enigmes.push(e);
+  enigmes.sort((a,b)=>a.ordre-b.ordre);
+  document.getElementById('e-ordre').value = enigmes.length+1;
+  clearEnigmaForm();
+  saveToFirebase();
+};
+
+window.clearEnigmaForm = function() {
+  document.getElementById('e-text').value='';
+  document.getElementById('e-nota').value='';
+};
+
+window.eliminarEnigma = function(id) {
+  enigmes = enigmes.filter(e=>e.id!==id);
+  saveToFirebase();
+};
+
+window.moureEnigma = function(id, dir) {
+  const i = enigmes.findIndex(e=>e.id===id);
+  const j = i+dir;
+  if (j<0||j>=enigmes.length) return;
+  [enigmes[i],enigmes[j]] = [enigmes[j],enigmes[i]];
+  enigmes.forEach((e,k)=>e.ordre=k+1);
+  saveToFirebase();
+};
+
+window.desarFinal = function() {
+  finalMsg = document.getElementById('final-text').value.trim()||finalMsg;
+  finalCanco = document.getElementById('final-canco').value.trim();
+  saveToFirebase();
+};
+
+window.desarConfig = function() {
+  cfg.centre = document.getElementById('cfg-centre').value.trim()||'Institut';
+  cfg.any = document.getElementById('cfg-any').value.trim()||'2025';
+  const np = document.getElementById('cfg-pwd').value.trim();
+  if (np) { cfg.pwd=np; localStorage.setItem(PWD_KEY,np); }
+  saveToFirebase();
+};
+
+window.audioCarregat = function(input) {
+  const f = input.files[0]; if(!f) return;
+  document.getElementById('audio-fname').textContent=f.name;
+  audioURL = URL.createObjectURL(f);
+  document.getElementById('audio-player').style.display='block';
+  document.getElementById('audio-el').src=audioURL;
+  // Sync audio to consola
+  if(document.getElementById('consola-audio')) document.getElementById('consola-audio').src=audioURL;
+  toast('Àudio carregat!');
+};
+
+// ── CONSOLA ──
+window.activarSeguent = async function() {
+  if (currentStep >= enigmes.length-1) return;
+  await setStep(currentStep+1);
+  toast('Enigma '+(currentStep+1)+' activat!');
+};
+
+function renderConsola() {
+  const noData = document.getElementById('consola-no-data');
+  const body = document.getElementById('consola-body');
+  if (!enigmes.length) { noData.style.display='block'; body.style.display='none'; return; }
+  noData.style.display='none'; body.style.display='block';
+
+  const n = currentStep;
+  const total = enigmes.length;
+  document.getElementById('c-actual').textContent = n<0?'—':n+1;
+  document.getElementById('c-total2').textContent = total;
+  const toLabels={divertit:'Divertit',emotiu:'Emotiu',pausa:'Pausa',final:'Final'};
+  document.getElementById('c-estat').textContent = n<0?'Pendent':n>=total?'Completat':(toLabels[enigmes[n]?.to]||'—');
+  document.getElementById('prog').style.width = n<0?'0%': Math.round(((n+1)/total)*100)+'%';
+
+  const btn = document.getElementById('btn-next');
+  const hint = document.getElementById('c-hint');
+  if (n<0) { btn.textContent='Activar primer enigma'; btn.disabled=false; hint.textContent='Prem quan la cerimònia arribi al moment del joc.'; }
+  else if (n<total-1) { const nx=enigmes[n+1]; btn.textContent='Activar enigma '+(n+2)+' — '+toLabels[nx.to]; btn.disabled=false; hint.textContent='Prem quan l\'alumne hagi passat el mòbil al company.'; }
+  else { btn.textContent='Cerimònia completada ✓'; btn.disabled=true; hint.textContent='Tots els enigmes han estat activats. Bona graduació!'; }
+
+  // Audio card
+  const ac = document.getElementById('audio-card');
+  const hasAudio = enigmes.some(e=>e.to==='pausa') && audioURL;
+  ac.style.display = hasAudio ? 'block' : 'none';
+  if (hasAudio) {
+    document.getElementById('consola-audio').src=audioURL;
+    const nom = document.getElementById('audio-nom')?.value||'';
+    document.getElementById('audio-nom-show').textContent=nom;
+  }
+
+  // Steps
+  document.getElementById('consola-steps').innerHTML = enigmes.map((e,i)=>{
+    const done = i<n, active = i===n;
+    const icons={divertit:'😄',emotiu:'💛',pausa:'🎵',final:'⭐'};
+    const labels={divertit:'Divertit',emotiu:'Emotiu',pausa:'Pausa — àudio',final:'Final emotiu'};
+    const prev = e.text.length>90?e.text.slice(0,90)+'…':e.text;
+    return `<div class="step ${done?'done':''} ${active?'active':''}">
+      <div class="snum ${done?'done':''} ${active?'active':''}">${i+1}</div>
+      <div class="sbody">
+        <div class="stitle">${icons[e.to]} ${labels[e.to]}</div>
+        <div class="ssub">${prev}</div>
+        ${e.nota?`<div class="smeta">👁 ${e.nota}</div>`:''}
+        ${active?'<div class="smeta" style="color:var(--gold)">En curs ara — el mòbil amagat mostra aquest enigma</div>':''}
+        ${done?'<div class="smeta">Completat</div>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── RENDER ALL ──
+function renderAll() {
+  // Stats
+  document.getElementById('st-total').textContent = enigmes.length;
+  const mins = Math.round(enigmes.length*90/60);
+  document.getElementById('st-mins').textContent = mins||'—';
+
+  // Form defaults from cfg
+  if(cfg.centre) document.getElementById('cfg-centre').value=cfg.centre;
+  if(cfg.any) document.getElementById('cfg-any').value=cfg.any;
+  if(finalMsg) document.getElementById('final-text').value=finalMsg;
+  if(finalCanco) document.getElementById('final-canco').value=finalCanco;
+
+  // Enigmes list
+  const cont = document.getElementById('enigmes-list');
+  if (!enigmes.length) { cont.innerHTML='<p style="color:var(--tx3);font-size:14px;text-align:center;padding:2rem 0">Encara no hi ha enigmes.</p>'; return; }
+  const badgeMap={divertit:'bg-gold',emotiu:'bg-teal',pausa:'bg-blue',final:'bg-grn'};
+  const labelMap={divertit:'😄 divertit',emotiu:'💛 emotiu',pausa:'🎵 pausa',final:'⭐ final'};
+  cont.innerHTML = enigmes.map((e,i)=>`
+    <div class="eitem">
+      <div class="enum">${e.ordre}</div>
+      <div class="ebody">
+        <span class="badge ${badgeMap[e.to]}">${labelMap[e.to]}</span>
+        <div class="etext">${e.text}</div>
+        ${e.nota?`<div class="enota">👁 ${e.nota}</div>`:''}
+        <div class="eactions">
+          <div class="icon-btn up" onclick="moureEnigma(${e.id},-1)" title="Pujar">↑</div>
+          <div class="icon-btn dn" onclick="moureEnigma(${e.id},1)" title="Baixar">↓</div>
+          <div class="icon-btn del" onclick="eliminarEnigma(${e.id})" title="Eliminar">✕</div>
+        </div>
+      </div>
+    </div>`).join('');
+
+  renderConsola();
+}
+
+// Init if already authenticated
+if (!sessionStorage.getItem('auth_ok')) {
+  // wait for login
+} else {
+  initApp();
+}
+</script>
+</body>
+</html>
